@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "404937648141",
+    "project_id": "fmipa-schedule",
+    "storage_bucket": "fmipa-schedule.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:404937648141:android:bc335940522bcfdae20d44",
+        "android_client_info": {
+          "package_name": "com.mita.fmipaschedule"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "404937648141-8dflml6j1ltt6s18167of0ueia75qurv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mita.fmipaschedule",
+            "certificate_hash": "b6697ddd3eaaf3822b7c15dcd28df8288eadfdd0"
+          }
+        },
+        {
+          "client_id": "404937648141-9n24aqhrs03dlv888b5be7nj0t2g3i2j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABBbmqFC7fTXLEXRPiW-RL7uqFBGGw7es"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "404937648141-9n24aqhrs03dlv888b5be7nj0t2g3i2j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
