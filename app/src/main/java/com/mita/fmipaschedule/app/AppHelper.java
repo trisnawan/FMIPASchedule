@@ -21,7 +21,7 @@ import java.util.Date;
 public class AppHelper {
 
     public static String getDefaultImage(){
-        return "https://firebasestorage.googleapis.com/v0/b/putri-thepos.appspot.com/o/users%2Fdefault.png?alt=media&token=d6f63d30-f790-4924-9ef7-d11ed59afc11";
+        return "https://firebasestorage.googleapis.com/v0/b/fmipa-schedule.appspot.com/o/users%2Fdefault.png?alt=media&token=4211c65a-c0f9-4bdb-8b78-7c1cf73f9a39";
     }
 
     public static boolean permissionFile(Activity activity){

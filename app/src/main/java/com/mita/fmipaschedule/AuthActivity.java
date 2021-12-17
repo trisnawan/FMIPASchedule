@@ -70,7 +70,7 @@ public class AuthActivity extends AppCompatActivity implements AuthInterface {
     @Override
     public void onLogin(String email, String password) {
         progressDialog.show();
-        users.login(email, password);
+        users.login(getApplicationContext(), email, password);
     }
 
     @Override
@@ -82,6 +82,6 @@ public class AuthActivity extends AppCompatActivity implements AuthInterface {
         userModel.setReg(reg);
         userModel.setEmail(email);
         userModel.setBirthdate(birthdate);
-        users.register(userModel, password);
+        users.register(getApplicationContext(), userModel, password);
     }
 }

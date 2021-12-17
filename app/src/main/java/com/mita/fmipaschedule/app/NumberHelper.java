@@ -1,6 +1,11 @@
 package com.mita.fmipaschedule.app;
 
+import android.annotation.SuppressLint;
+
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 public class NumberHelper {
@@ -15,6 +20,18 @@ public class NumberHelper {
         Locale locale = new Locale("in", "ID");
         NumberFormat numberFormat = NumberFormat.getCurrencyInstance(locale);
         return numberFormat.format(Double.parseDouble(number));
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public static String dateFormat(long timestamp){
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        return dateFormat.format(new Date(timestamp));
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public static String dateFormat(Date date){
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        return dateFormat.format(date);
     }
 
     public static int cleanInt(String string){

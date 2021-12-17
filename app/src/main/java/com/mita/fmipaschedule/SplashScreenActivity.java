@@ -38,7 +38,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                         finish();
                     }
                 });
-                users.syncUser();
+                users.syncUser(getApplicationContext());
             }else{
                 startActivity(new Intent(SplashScreenActivity.this, AuthActivity.class));
                 finish();

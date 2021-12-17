@@ -4,6 +4,7 @@ public class UserModel {
     private int type;
     private long birthdate;
     private String id, name, reg, email;
+    private ProgramModel program;
 
     public String getId() {
         return id;
@@ -51,5 +52,13 @@ public class UserModel {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public ProgramModel getProgram() {
+        return program;
+    }
+
+    public void setProgram(ProgramModel program) {
+        this.program = program;
     }
 }

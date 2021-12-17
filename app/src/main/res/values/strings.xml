@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">FMIPA Schedule</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
+    <string name="title_dashboard">Jadwal</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_profile">Profile</string>
     <string name="login">Login</string>
     <string name="user_phone">Nomor Telepon</string>
     <string name="user_password">Kata Sandi</string>
@@ -21,4 +22,9 @@
     <string name="password_conf">Konfirmasi Kata Sandi</string>
     <string name="error_form_not_complete">Silahkan isi semua data terlebih dahulu!</string>
     <string name="error_password_not_match">Konfirmasi kata sandi tidak tepat!</string>
+    <string name="bidang">Bidang Studi</string>
+    <string name="program_studi">Program Studi</string>
+    <string name="sign_out">Keluar</string>
+    <string name="greeting_main">Selamat datang,</string>
+    <string name="jadwal_hari_ini">Jadwal Hari Ini</string>
 </resources>

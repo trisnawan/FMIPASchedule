@@ -24,6 +24,7 @@ import com.google.firebase.storage.UploadTask;
 import com.mita.fmipaschedule.Interface.DatabaseInterface;
 import com.mita.fmipaschedule.app.AppHelper;
 import com.mita.fmipaschedule.app.SessionManager;
+import com.mita.fmipaschedule.model.ProgramModel;
 import com.mita.fmipaschedule.model.UserModel;
 
 import java.io.ByteArrayOutputStream;
@@ -44,7 +45,7 @@ public class Users {
         this.databaseInterface = databaseInterface;
     }
 
-    public void updatePassword(String oldPassword, String newPassword){
+    public void updatePassword(Context context, String oldPassword, String newPassword){
         AuthCredential credential = EmailAuthProvider.getCredential(getEmail(), oldPassword);
         user.reauthenticate(credential).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -52,7 +53,7 @@ public class Users {
                 user.updatePassword(newPassword).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        syncUser();
+                        syncUser(context);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -69,7 +70,7 @@ public class Users {
         });
     }
 
-    public void updateAvatar(Bitmap bitmap){
+    public void updateAvatar(Context context, Bitmap bitmap){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
@@ -90,7 +91,7 @@ public class Users {
                                 user.updateProfile(request).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void unused) {
-                                        syncUser();
+                                        syncUser(context);
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -120,14 +121,14 @@ public class Users {
         });
     }
 
-    public void updateName(String name){
+    public void updateName(Context context, String name){
         UserProfileChangeRequest request = new UserProfileChangeRequest.Builder()
                 .setDisplayName(name)
                 .build();
         user.updateProfile(request).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
-                syncUser();
+                syncUser(context);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -141,13 +142,14 @@ public class Users {
         return user != null;
     }
 
-    public void login(String email, String password){
+    public void login(Context context, String email, String password){
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mAuth.signInWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
                 if (authResult.getUser()!=null){
-                    databaseInterface.onSuccess(true, "Login Berhasil!", null);
+                    user = authResult.getUser();
+                    syncUser(context);
                 }else{
                     databaseInterface.onSuccess(false, "Login Gagal!", null);
                 }
@@ -155,7 +157,7 @@ public class Users {
         }).addOnFailureListener(e -> databaseInterface.onSuccess(false, e.getLocalizedMessage(), null));
     }
 
-    public void register(UserModel userModel, String password){
+    public void register(Context context, UserModel userModel, String password){
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mAuth.createUserWithEmailAndPassword(userModel.getEmail(), password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
@@ -170,7 +172,7 @@ public class Users {
                     user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
                         // SAVE TO DATABASE
                         db.collection("users").document(user.getUid()).set(userModel).addOnCompleteListener(task1 -> {
-                            databaseInterface.onSuccess(true, "Register Gagal!", null);
+                            syncUser(context);
                         });
                     });
                 }else{
@@ -204,7 +206,7 @@ public class Users {
                 });
     }
 
-    public void syncUser(){
+    public void syncUser(Context context){
         Map<String, Object> us = new HashMap<>();
         us.put("name", getName());
         us.put("email", getEmail());
@@ -213,9 +215,22 @@ public class Users {
         db.collection("users").document(getId())
                 .update(us)
                 .addOnSuccessListener(unused -> {
-                    if (databaseInterface!=null){
-                        databaseInterface.onSuccess(true, null, null);
-                    }
+                    db.collection("users").document(getId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful() && task.getResult()!=null){
+                                UserModel um = task.getResult().toObject(UserModel.class);
+                                if (um!=null) {
+                                    um.setId(task.getResult().getId());
+                                    SessionManager sm = new SessionManager(context);
+                                    sm.setUser(um);
+                                }
+                            }
+                            if (databaseInterface!=null){
+                                databaseInterface.onSuccess(true, null, null);
+                            }
+                        }
+                    });
                 })
                 .addOnFailureListener(e -> {
                     if (databaseInterface!=null){
@@ -244,12 +259,22 @@ public class Users {
         return user.getDisplayName();
     }
 
-    public String getType(Context context){
-        SessionManager sessionManager = new SessionManager(context);
-        return sessionManager.getUserType();
-    }
-
     public String getEmail(){
         return user.getEmail();
+    }
+
+    public String getTypeString(Context context){
+        SessionManager sessionManager = new SessionManager(context);
+        return sessionManager.getUserTypeString();
+    }
+
+    public Date getBirthDate(Context context){
+        SessionManager sessionManager = new SessionManager(context);
+        return new Date(sessionManager.getUser().getBirthdate());
+    }
+
+    public ProgramModel getProgram(Context context){
+        SessionManager sessionManager = new SessionManager(context);
+        return sessionManager.getProgram();
     }
 }
