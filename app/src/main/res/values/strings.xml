@@ -27,4 +27,13 @@
     <string name="sign_out">Keluar</string>
     <string name="greeting_main">Selamat datang,</string>
     <string name="jadwal_hari_ini">Jadwal Hari Ini</string>
+    <string name="new_schedule">Buat Jadwal Baru</string>
+    <string name="schedule_time_not_found">Tidak ada waktu tersedia di hari ini, silahkan cari jadwal di hari lain!</string>
+    <string name="mata_kuliah">Mata Kuliah</string>
+    <string name="semester">Semester</string>
+    <string name="jumlah_sks">Jumlah SKS</string>
+    <string name="ruang_kelas">Ruang Kelas</string>
+    <string name="choose_day">Pilih Hari</string>
+    <string name="save">Simpan</string>
+    <string name="kode_mata_kuliah">Kode Mata Kuliah</string>
 </resources>

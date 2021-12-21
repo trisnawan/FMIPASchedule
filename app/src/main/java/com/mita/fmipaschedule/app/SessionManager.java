@@ -15,6 +15,12 @@ public class SessionManager {
         this.sharedpreferences = context.getSharedPreferences("mita-schedule-session", Context.MODE_PRIVATE);
     }
 
+    public void logout(){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.clear();
+        editor.apply();
+    }
+
     public void setUser(UserModel user){
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString("user_id", user.getId());
@@ -36,6 +42,10 @@ public class SessionManager {
         userModel.setBirthdate(sharedpreferences.getLong("user_birthdate", 0));
         userModel.setType(sharedpreferences.getInt("user_type", 0));
         return userModel;
+    }
+
+    public int getUserType(){
+        return sharedpreferences.getInt("user_type", 0);
     }
 
     public String getUserTypeString(){

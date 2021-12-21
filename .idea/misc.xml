@@ -8,9 +8,15 @@
         <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/activity_splash_screen.xml" value="0.2125" />
         <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/fragment_auth_login.xml" value="0.2125" />
         <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/fragment_auth_register.xml" value="0.2125" />
+        <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/fragment_dashboard.xml" value="0.2125" />
+        <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/fragment_dialog_days.xml" value="0.2125" />
+        <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/fragment_dialog_mata_choose.xml" value="0.1984375" />
+        <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/fragment_dialog_mata_editor.xml" value="0.1984375" />
+        <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/fragment_dialog_program.xml" value="0.2125" />
         <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/fragment_home.xml" value="0.2125" />
         <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/fragment_profile.xml" value="0.2125" />
         <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/fragment_profile_program_study.xml" value="0.2125" />
+        <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/fragment_schedule_editor.xml" value="0.2125" />
         <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/layout/row_program.xml" value="0.2125" />
         <entry key="..\:/AndroidStudio/Freelancer/FMIPASchedule/app/src/main/res/menu/bottom_nav_menu.xml" value="0.2125" />
       </map>

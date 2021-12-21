@@ -277,4 +277,19 @@ public class Users {
         SessionManager sessionManager = new SessionManager(context);
         return sessionManager.getProgram();
     }
+
+    public boolean isDosen(Context context){
+        SessionManager sessionManager = new SessionManager(context);
+        if (sessionManager.getUserType()==1){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public void logout(Context context){
+        FirebaseAuth.getInstance().signOut();
+        SessionManager sessionManager = new SessionManager(context);
+        sessionManager.logout();
+    }
 }

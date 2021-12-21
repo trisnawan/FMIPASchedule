@@ -1,5 +1,6 @@
 package com.mita.fmipaschedule.ui.profile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.mita.fmipaschedule.R;
+import com.mita.fmipaschedule.SplashScreenActivity;
 import com.mita.fmipaschedule.app.NumberHelper;
 import com.mita.fmipaschedule.database.Users;
 
@@ -24,7 +26,7 @@ public class ProfileFragment extends Fragment {
     private SwipeRefreshLayout refreshLayout;
     private ImageView userAvatar;
     private TextView userName, userEmail, userBirthDate, userBidang, userProgram, userStatus;
-    private RelativeLayout btnBidang, btnProgram;
+    private RelativeLayout btnBidang, btnProgram, btnLogout;
     private Users users;
 
     @Override
@@ -45,6 +47,7 @@ public class ProfileFragment extends Fragment {
         userStatus = view.findViewById(R.id.status);
         btnBidang = view.findViewById(R.id.btn_bidang);
         btnProgram = view.findViewById(R.id.btn_program);
+        btnLogout = view.findViewById(R.id.btn_logout);
 
         users = new Users();
 
@@ -54,6 +57,11 @@ public class ProfileFragment extends Fragment {
         });
         btnProgram.setOnClickListener(v -> {
             Navigation.findNavController(view).navigate(R.id.navigation_profile_program);
+        });
+        btnLogout.setOnClickListener(v -> {
+            users.logout(requireContext());
+            startActivity(new Intent(requireContext(), SplashScreenActivity.class));
+            requireActivity().finish();
         });
         loadProfile();
     }

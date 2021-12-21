@@ -20,6 +20,10 @@ import java.util.Date;
 
 public class AppHelper {
 
+    public static long timePerSks(){
+        return 50*60*1000;
+    }
+
     public static String getDefaultImage(){
         return "https://firebasestorage.googleapis.com/v0/b/fmipa-schedule.appspot.com/o/users%2Fdefault.png?alt=media&token=4211c65a-c0f9-4bdb-8b78-7c1cf73f9a39";
     }

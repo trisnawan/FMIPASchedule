@@ -29,4 +29,10 @@
         android:label="Pilih Jurusan"
         tools:layout="@layout/fragment_profile_program_study" />
 
+    <fragment
+        android:id="@+id/navigation_schedule_add"
+        android:name="com.mita.fmipaschedule.ui.schedule.ScheduleEditorFragment"
+        android:label="Buat Jadwal"
+        tools:layout="@layout/fragment_schedule_editor" />
+
 </navigation>

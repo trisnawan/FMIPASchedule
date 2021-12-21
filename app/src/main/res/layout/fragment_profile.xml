@@ -158,6 +158,8 @@
             </RelativeLayout>
             <View style="@style/Divider" />
             <RelativeLayout
+                android:id="@+id/btn_logout"
+                android:foreground="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="14dp">
@@ -170,7 +172,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/red"
-                        android:text="@string/sign_out" />
+                        android:text="@string/sign_out"
+                        android:drawablePadding="10dp"
+                        app:drawableStartCompat="@drawable/ic_baseline_logout_24"
+                        app:drawableTint="@color/red" />
                 </LinearLayout>
             </RelativeLayout>
             <View style="@style/Divider" />
