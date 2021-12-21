@@ -17,8 +17,12 @@ public class Fakultas {
         void response(InterfaceModel<FakultasModel> response);
     }
 
+    public String getId(){
+        return "uPFIeaQBxkFfMtAmRdOr";
+    }
+
     public void get(FakultasInterface fakultasInterface){
-        db.collection(table).document("uPFIeaQBxkFfMtAmRdOr").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        db.collection(table).document(getId()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 fakultasInterface.response(new InterfaceModel<>(true, null, documentSnapshot.toObject(FakultasModel.class)));

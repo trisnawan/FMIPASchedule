@@ -24,9 +24,38 @@ public class Scheduler {
     private final String tableMain = "schedule";
     private final FakultasModel fakultasModel;
 
+    public Scheduler(Context context){
+        this.context = context;
+        FakultasModel fm = new FakultasModel();
+        fm.setId(new Fakultas().getId());
+        this.fakultasModel = fm;
+    }
+
     public Scheduler(Context context, FakultasModel fakultasModel){
         this.context = context;
         this.fakultasModel = fakultasModel;
+    }
+
+    public void gets(int day, SchedulerInterface schedulerInterface){
+        Users users = new Users();
+        CollectionReference reference = db.collection(tableMain);
+        Query query;
+        if (users.isDosen(context)){
+            query = reference.whereEqualTo("fakultas", fakultasModel.getId()).whereEqualTo("day", day);
+        }else{
+            query = reference.whereEqualTo("fakultas", fakultasModel.getId()).whereEqualTo("day", day).whereEqualTo("program", users.getProgram(context));
+        }
+        query.orderBy("timeStart", Query.Direction.ASCENDING).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot snapshots) {
+                schedulerInterface.onSuccess(snapshots.toObjects(ScheduleModel.class));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                schedulerInterface.onFailure(0, e.getLocalizedMessage());
+            }
+        });
     }
 
     public Saving set(ScheduleModel model){

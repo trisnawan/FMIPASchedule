@@ -1,54 +1,62 @@
-package com.mita.fmipaschedule.ui.home;
-
-import android.annotation.SuppressLint;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+package com.mita.fmipaschedule;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+
 import com.mita.fmipaschedule.Interface.ListInterface;
-import com.mita.fmipaschedule.R;
 import com.mita.fmipaschedule.adapter.ScheduleAdapter;
 import com.mita.fmipaschedule.database.Scheduler;
 import com.mita.fmipaschedule.database.Users;
 import com.mita.fmipaschedule.helper.DialogHelper;
-import com.mita.fmipaschedule.model.FakultasModel;
 import com.mita.fmipaschedule.model.ScheduleModel;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
-public class HomeFragment extends Fragment {
+public class ScheduleActivity extends AppCompatActivity {
     private SwipeRefreshLayout refreshLayout;
-    private TextView textName;
-    private RecyclerView recyclerSchedule;
     private ScheduleAdapter scheduleAdapter;
-    private List<ScheduleModel> schedules = new ArrayList<>();
+    private int day = 0;
+    private final List<ScheduleModel> schedules = new ArrayList<>();
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_home, container, false);
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            this.finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        refreshLayout = view.findViewById(R.id.refresh_layout);
-        textName = view.findViewById(R.id.user_name);
-        recyclerSchedule = view.findViewById(R.id.schedule);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_schedule);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar!=null) actionBar.setDisplayHomeAsUpEnabled(true);
 
-        scheduleAdapter = new ScheduleAdapter(requireContext(), schedules);
+        refreshLayout = findViewById(R.id.refresh_layout);
+        RecyclerView recyclerSchedule = findViewById(R.id.recycler_view);
+
+        Intent intent = getIntent();
+        day = intent.getIntExtra("day", 0);
+        String title = intent.getStringExtra("title");
+
+        if (actionBar!=null && title!=null) actionBar.setTitle(title);
+
+        scheduleAdapter = new ScheduleAdapter(getApplicationContext(), schedules);
         scheduleAdapter.setListInterface(new ListInterface() {
             @Override
             public void onClick(View view, int position) {
@@ -60,23 +68,19 @@ public class HomeFragment extends Fragment {
 
             }
         });
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
         recyclerSchedule.setLayoutManager(layoutManager);
         recyclerSchedule.setAdapter(scheduleAdapter);
 
         refreshLayout.setOnRefreshListener(this::getSchedules);
-
-        Users users = new Users();
-        textName.setText(users.getName());
         getSchedules();
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private void getSchedules(){
         refreshLayout.setRefreshing(true);
-        Calendar calendar = Calendar.getInstance();
-        Scheduler scheduler = new Scheduler(requireContext());
-        scheduler.gets(calendar.get(Calendar.DAY_OF_WEEK)-1, new Scheduler.SchedulerInterface() {
+        Scheduler scheduler = new Scheduler(getApplicationContext());
+        scheduler.gets(day, new Scheduler.SchedulerInterface() {
             @Override
             public void onSuccess(List<ScheduleModel> list) {
                 schedules.clear();
@@ -87,7 +91,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onFailure(int code, String message) {
-                DialogHelper.toastShort(requireContext(), message);
+                DialogHelper.toastShort(getApplicationContext(), message);
                 refreshLayout.setRefreshing(false);
             }
         });

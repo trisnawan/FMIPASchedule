@@ -173,6 +173,7 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
             scheduleModel.setDay(daysModel.getId());
             // PRIMARY
             scheduleModel.setFakultas(fakultasModel.getId());
+            scheduleModel.setCode(matkulModel.getId());
             scheduleModel.setTimeLong(scheduleModel.getSks() * AppHelper.timePerSks());
             Scheduler scheduler = new Scheduler(requireContext(), fakultasModel);
             scheduler.set(scheduleModel).create(new Scheduler.SchedulerInterface() {

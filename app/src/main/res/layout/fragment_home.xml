@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/refresh_layout"
     tools:context=".ui.home.HomeFragment">
     <ScrollView
         android:layout_width="match_parent"
@@ -44,6 +45,12 @@
                 android:textAllCaps="true"
                 android:textColor="@color/black"
                 android:text="@string/jadwal_hari_ini" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/schedule"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:nestedScrollingEnabled="false" />
         </LinearLayout>
     </ScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

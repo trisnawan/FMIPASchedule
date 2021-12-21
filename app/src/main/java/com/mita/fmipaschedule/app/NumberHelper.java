@@ -22,6 +22,17 @@ public class NumberHelper {
         return numberFormat.format(Double.parseDouble(number));
     }
 
+    public static String timeFormat(long timestamp){
+        long s = timestamp/1000;
+        long m = s/60;
+        long H = m/60;
+        return H + ":" + (m - (H * 60));
+    }
+
+    public static String timeFormat(long start, long end, String split){
+        return timeFormat(start) + split + timeFormat(end);
+    }
+
     @SuppressLint("SimpleDateFormat")
     public static String dateFormat(long timestamp){
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
