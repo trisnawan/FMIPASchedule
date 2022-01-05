@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -16,6 +17,7 @@ import com.mita.fmipaschedule.model.FakultasModel;
 import com.mita.fmipaschedule.model.FakultasOpensModel;
 import com.mita.fmipaschedule.model.ScheduleModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Scheduler {
@@ -48,7 +50,15 @@ public class Scheduler {
         query.orderBy("timeStart", Query.Direction.ASCENDING).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot snapshots) {
-                schedulerInterface.onSuccess(snapshots.toObjects(ScheduleModel.class));
+                List<ScheduleModel> list = new ArrayList<>();
+                for (DocumentSnapshot doc : snapshots){
+                    ScheduleModel model = doc.toObject(ScheduleModel.class);
+                    if (model!=null){
+                        model.setId(doc.getId());
+                        list.add(model);
+                    }
+                }
+                schedulerInterface.onSuccess(list);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -61,6 +71,40 @@ public class Scheduler {
     public Saving set(ScheduleModel model){
         model.setFakultas(fakultasModel.getId());
         return new Saving(model);
+    }
+
+    public void delete(ScheduleModel model, SchedulerInterface schedulerInterface){
+        db.collection(tableMain).document(model.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                schedulerInterface.onSuccess(null);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                schedulerInterface.onFailure(0, e.getLocalizedMessage());
+            }
+        });
+    }
+
+    public void get(String id, SchedulerInterface schedulerInterface){
+        db.collection(tableMain).document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                List<ScheduleModel> list = new ArrayList<>();
+                ScheduleModel model = documentSnapshot.toObject(ScheduleModel.class);
+                if (model!=null) {
+                    model.setId(documentSnapshot.getId());
+                    list.add(model);
+                }
+                schedulerInterface.onSuccess(list);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                schedulerInterface.onFailure(0, e.getLocalizedMessage());
+            }
+        });
     }
 
     public interface SchedulerInterface {

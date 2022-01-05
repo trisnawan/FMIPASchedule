@@ -16,7 +16,7 @@ public class DaysData {
         void response(InterfaceModel<List<DaysModel>> response);
     }
 
-    private List<DaysModel> days(){
+    public List<DaysModel> days(){
         List<DaysModel> list = new ArrayList<>();
         list.add(new DaysModel(0, "Minggu"));
         list.add(new DaysModel(1, "Senin"));

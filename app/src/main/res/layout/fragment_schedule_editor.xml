@@ -76,19 +76,6 @@
                 android:hint="@string/ruang_kelas"
                 android:inputType="text"/>
         </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            app:boxBackgroundColor="@color/white"
-            app:boxBackgroundMode="outline">
-            <EditText
-                android:id="@+id/day"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/choose_day"
-                android:inputType="text"/>
-        </com.google.android.material.textfield.TextInputLayout>
         <RadioGroup
             android:id="@+id/wp"
             android:layout_width="match_parent"

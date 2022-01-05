@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/refresh_layout"
+    tools:context=".SchedulePageActivity">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/main_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="14dp">
+                <TextView
+                    android:id="@+id/code_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/kode_mata_kuliah" />
+                <TextView
+                    android:id="@+id/code"
+                    android:layout_below="@id/code_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:text="@string/app_name" />
+            </RelativeLayout>
+            <View style="@style/Divider" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="14dp">
+                <TextView
+                    android:id="@+id/matkul_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mata_kuliah" />
+                <TextView
+                    android:id="@+id/matkul"
+                    android:layout_below="@id/matkul_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:text="@string/app_name" />
+            </RelativeLayout>
+            <View style="@style/Divider" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="14dp">
+                <TextView
+                    android:id="@+id/wp_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/w_p" />
+                <TextView
+                    android:id="@+id/wp"
+                    android:layout_below="@id/wp_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:text="@string/app_name" />
+            </RelativeLayout>
+            <View style="@style/Divider" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="14dp">
+                <TextView
+                    android:id="@+id/day_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hari" />
+                <TextView
+                    android:id="@+id/day"
+                    android:layout_below="@id/day_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:text="@string/app_name" />
+            </RelativeLayout>
+            <View style="@style/Divider" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="14dp">
+                <TextView
+                    android:id="@+id/time_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/waktu" />
+                <TextView
+                    android:id="@+id/time"
+                    android:layout_below="@id/time_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:text="@string/app_name" />
+            </RelativeLayout>
+            <View style="@style/Divider" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="14dp">
+                <TextView
+                    android:id="@+id/room_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/room" />
+                <TextView
+                    android:id="@+id/room"
+                    android:layout_below="@id/room_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:text="@string/app_name" />
+            </RelativeLayout>
+            <View style="@style/Divider" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="14dp">
+                <TextView
+                    android:id="@+id/dosen_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/type_dosen" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/dosens"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/dosen_t"
+                    android:overScrollMode="never"
+                    android:nestedScrollingEnabled="false"/>
+            </RelativeLayout>
+            <Button
+                android:id="@+id/btn_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/delete_schedule"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/primary"
+                android:textAllCaps="false"
+                android:layout_margin="14dp" />
+        </LinearLayout>
+    </ScrollView>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

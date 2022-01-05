@@ -1,4 +1,4 @@
-package com.mita.fmipaschedule.ui.dashboard;
+package com.mita.fmipaschedule.ui.schedule;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;

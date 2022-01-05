@@ -60,7 +60,10 @@ public class ScheduleActivity extends AppCompatActivity {
         scheduleAdapter.setListInterface(new ListInterface() {
             @Override
             public void onClick(View view, int position) {
-
+                Intent i = new Intent(getApplicationContext(),SchedulePageActivity.class);
+                i.putExtra("id", schedules.get(position).getId());
+                i.putExtra("title", schedules.get(position).getMatkul().getName());
+                startActivity(i);
             }
 
             @Override
@@ -73,6 +76,11 @@ public class ScheduleActivity extends AppCompatActivity {
         recyclerSchedule.setAdapter(scheduleAdapter);
 
         refreshLayout.setOnRefreshListener(this::getSchedules);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         getSchedules();
     }
 

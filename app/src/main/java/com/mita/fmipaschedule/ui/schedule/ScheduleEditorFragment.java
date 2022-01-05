@@ -40,7 +40,7 @@ import java.util.List;
 public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataInterface {
     private View mainView;
     private ProgressDialog progressDialog;
-    private EditText editProgram, editMatkul, editSemester, editSks, editKelas, editDay;
+    private EditText editProgram, editMatkul, editSemester, editSks, editKelas;
     private RadioGroup editWp;
     private Button btnSave;
     private FakultasModel fakultasModel;
@@ -67,14 +67,13 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
         editSemester = view.findViewById(R.id.semester);
         editSks = view.findViewById(R.id.sks);
         editKelas = view.findViewById(R.id.kelas);
-        editDay = view.findViewById(R.id.day);
         editWp = view.findViewById(R.id.wp);
         btnSave = view.findViewById(R.id.btn_save);
 
         fakultasModel = new FakultasModel();
         programModel = new ProgramModel();
         matkulModel = new MatkulModel();
-        daysModel = new DaysModel();
+        daysModel = new DaysData().days().get(0);
         progressDialog = new ProgressDialog(requireActivity());
         progressDialog.setTitle(getString(R.string.loading));
         progressDialog.setMessage(getString(R.string.please_wait));
@@ -84,8 +83,6 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
         editProgram.setOnClickListener(v -> getProgram());
         editMatkul.setFocusable(false);
         editMatkul.setOnClickListener(v -> getMata());
-        editDay.setFocusable(false);
-        editDay.setOnClickListener(v -> getDay());
         editWp.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -143,22 +140,6 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
         editorFragment.show(getParentFragmentManager(), null);
     }
 
-    private void getDay(){
-        DialogDaysFragment dialogDaysFragment = new DialogDaysFragment();
-        dialogDaysFragment.setDaysInterface(new DaysData.DaysInterface() {
-            @Override
-            public void response(InterfaceModel<DaysModel> response) {
-                if (response.isSuccess()){
-                    daysModel = response.getData();
-                    editDay.setText(daysModel.getName());
-                }else{
-                    DialogHelper.toastShort(requireContext(), response.getMessage());
-                }
-            }
-        });
-        dialogDaysFragment.show(getParentFragmentManager(), null);
-    }
-
     private void saveSchedule(){
         progressDialog.show();
         btnSave.setEnabled(false);
@@ -186,9 +167,15 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
 
                 @Override
                 public void onFailure(int code, String message) {
-                    DialogHelper.alert(requireActivity(), getString(R.string.app_name), message);
-                    progressDialog.dismiss();
-                    btnSave.setEnabled(true);
+                    DaysData dd = new DaysData();
+                    if (code==1 && dd.days().get(daysModel.getId()+1)!=null){
+                        daysModel = dd.days().get(daysModel.getId()+1);
+                        saveSchedule();
+                    } else {
+                        DialogHelper.alert(requireActivity(), getString(R.string.app_name), message);
+                        progressDialog.dismiss();
+                        btnSave.setEnabled(true);
+                    }
                 }
             });
         }else{
