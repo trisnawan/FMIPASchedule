@@ -15,6 +15,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.mita.fmipaschedule.R;
 import com.mita.fmipaschedule.model.FakultasModel;
 import com.mita.fmipaschedule.model.FakultasOpensModel;
+import com.mita.fmipaschedule.model.KelasModel;
 import com.mita.fmipaschedule.model.ScheduleModel;
 
 import java.util.ArrayList;
@@ -38,14 +39,14 @@ public class Scheduler {
         this.fakultasModel = fakultasModel;
     }
 
-    public void gets(int day, SchedulerInterface schedulerInterface){
+    public void gets(int day, String semester, SchedulerInterface schedulerInterface){
         Users users = new Users();
         CollectionReference reference = db.collection(tableMain);
         Query query;
         if (users.isDosen(context)){
-            query = reference.whereEqualTo("fakultas", fakultasModel.getId()).whereEqualTo("day", day);
+            query = reference.whereEqualTo("fakultas", fakultasModel.getId()).whereEqualTo("day", day).whereEqualTo("semester", semester);
         }else{
-            query = reference.whereEqualTo("fakultas", fakultasModel.getId()).whereEqualTo("day", day).whereEqualTo("program", users.getProgram(context));
+            query = reference.whereEqualTo("fakultas", fakultasModel.getId()).whereEqualTo("day", day).whereEqualTo("program", users.getProgram(context)).whereEqualTo("semester", semester);
         }
         query.orderBy("timeStart", Query.Direction.ASCENDING).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
@@ -118,6 +119,7 @@ public class Scheduler {
             this.model = model;
         }
         public void create(SchedulerInterface schedulerInterface){
+            // GET ALL SCHEDULE
             CollectionReference reference = db.collection(tableMain);
             Query query = reference.whereEqualTo("fakultas", fakultasModel.getId()).whereEqualTo("day", model.getDay());
             query.orderBy("timeStart", Query.Direction.ASCENDING);
@@ -125,22 +127,34 @@ public class Scheduler {
                 @Override
                 public void onSuccess(QuerySnapshot snapshots) {
                     List<ScheduleModel> list = snapshots.toObjects(ScheduleModel.class);
-                    ScheduleModel newModel = getSchedule(list, model);
-                    if (newModel!=null){
-                        db.collection(tableMain).add(newModel).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                schedulerInterface.onSuccess(null);
+                    // GET ALL KELAS
+                    db.collection("kelas").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot snapshots) {
+                            List<KelasModel> kelasModelList = snapshots.toObjects(KelasModel.class);
+                            ScheduleModel newModel = getSchedule(list, kelasModelList, model);
+                            if (newModel!=null && newModel.getDay()!=0 && newModel.getDay()!=6){
+                                db.collection(tableMain).add(newModel).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    @Override
+                                    public void onSuccess(DocumentReference documentReference) {
+                                        schedulerInterface.onSuccess(null);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        schedulerInterface.onFailure(2, e.getLocalizedMessage());
+                                    }
+                                });
+                            }else{
+                                schedulerInterface.onFailure(1, context.getString(R.string.schedule_time_not_found));
                             }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                schedulerInterface.onFailure(2, e.getLocalizedMessage());
-                            }
-                        });
-                    }else{
-                        schedulerInterface.onFailure(1, context.getString(R.string.schedule_time_not_found));
-                    }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            schedulerInterface.onFailure(0, e.getLocalizedMessage());
+                        }
+                    });
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -149,30 +163,51 @@ public class Scheduler {
                 }
             });
         }
-        private ScheduleModel getSchedule(List<ScheduleModel> list, ScheduleModel model){
+        private ScheduleModel getSchedule(List<ScheduleModel> list, List<KelasModel> kelas, ScheduleModel model){
             if (list!=null){
                 boolean lock = false;
                 long forLast = fakultasModel.getOpens().get(0).getStart();
+                // FOREACH JAM BUKA KAMPUS
                 for (FakultasOpensModel om : fakultasModel.getOpens()) {
                     if (!lock) {
+                        // FOREACH JADWAL YANG TERSEDIA
                         for (ScheduleModel sm : list) {
                             if (!lock) {
-                                if (forLast + 5 < sm.getTimeStart()) {
-                                    if (sm.getTimeEnd() > forLast + model.getTimeLong()) {
-                                        model.setTimeStart(forLast);
-                                        model.setTimeEnd(forLast + model.getTimeLong());
-                                        lock = true;
-                                    } else {
-                                        forLast = sm.getTimeEnd();
+                                if (forLast + 5 < sm.getTimeStart() && sm.getTimeEnd() > forLast + model.getTimeLong() && !sm.getSemester().equals(model.getSemester())) {
+                                    // FOREACH KELAS YANG TERSEDIA
+                                    for (KelasModel kl : kelas) {
+                                        if (!lock) {
+                                            if (!kl.getName().equals(sm.getKelas())) {
+                                                model.setTimeStart(forLast);
+                                                model.setTimeEnd(forLast + model.getTimeLong());
+                                                model.setKelas(kl.getName());
+                                                lock = true;
+                                            } else {
+                                                forLast = sm.getTimeEnd();
+                                            }
+                                        }
                                     }
                                 } else {
-                                    forLast = sm.getTimeEnd();
+                                    // FOREACH KELAS YANG TERSEDIA
+                                    for (KelasModel kl : kelas) {
+                                        if (!lock) {
+                                            if (!kl.getName().equals(sm.getKelas())) {
+                                                model.setTimeStart(forLast);
+                                                model.setTimeEnd(forLast + model.getTimeLong());
+                                                model.setKelas(kl.getName());
+                                                lock = true;
+                                            } else {
+                                                forLast = sm.getTimeEnd();
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                         if (!lock && om.getEnd() >= forLast + model.getTimeLong()) {
                             model.setTimeStart(forLast);
                             model.setTimeEnd(forLast + model.getTimeLong());
+                            model.setKelas(kelas.get(0).getName());
                             lock = true;
                         }
                     }
@@ -183,6 +218,7 @@ public class Scheduler {
             }else{
                 model.setTimeStart(fakultasModel.getOpens().get(0).getStart());
                 model.setTimeEnd(model.getTimeStart()+model.getTimeLong());
+                model.setKelas(kelas.get(0).getName());
             }
             return model;
         }

@@ -75,4 +75,14 @@ public class SessionManager {
         return model;
     }
 
+    public void setSemester(String semester){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString("cache_semester", semester);
+        editor.apply();
+    }
+
+    public String getSemester(){
+        return sharedpreferences.getString("cache_semester", "1");
+    }
+
 }

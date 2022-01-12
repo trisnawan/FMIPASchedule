@@ -40,7 +40,7 @@ import java.util.List;
 public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataInterface {
     private View mainView;
     private ProgressDialog progressDialog;
-    private EditText editProgram, editMatkul, editSemester, editSks, editKelas;
+    private EditText editProgram, editMatkul, editSemester, editSks;
     private RadioGroup editWp;
     private Button btnSave;
     private FakultasModel fakultasModel;
@@ -66,7 +66,6 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
         editMatkul = view.findViewById(R.id.matkul);
         editSemester = view.findViewById(R.id.semester);
         editSks = view.findViewById(R.id.sks);
-        editKelas = view.findViewById(R.id.kelas);
         editWp = view.findViewById(R.id.wp);
         btnSave = view.findViewById(R.id.btn_save);
 
@@ -143,11 +142,10 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
     private void saveSchedule(){
         progressDialog.show();
         btnSave.setEnabled(false);
-        if (programModel!=null && matkulModel!=null && daysModel!=null && editSemester.getText().length()>0 && editSks.getText().length()>0 && editKelas.getText().length()>0){
+        if (programModel!=null && matkulModel!=null && daysModel!=null && editSemester.getText().length()>0 && editSks.getText().length()>0){
             ScheduleModel scheduleModel = new ScheduleModel();
             scheduleModel.setSemester(editSemester.getText().toString());
             scheduleModel.setWp(stringWp);
-            scheduleModel.setKelas(editKelas.getText().toString());
             scheduleModel.setMatkul(matkulModel);
             scheduleModel.setProgram(programModel);
             scheduleModel.setSks(Integer.parseInt(editSks.getText().toString()));

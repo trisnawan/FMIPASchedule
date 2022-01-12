@@ -12,14 +12,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.mita.fmipaschedule.Interface.ListInterface;
 import com.mita.fmipaschedule.adapter.ScheduleAdapter;
+import com.mita.fmipaschedule.app.SessionManager;
 import com.mita.fmipaschedule.database.Scheduler;
 import com.mita.fmipaschedule.database.Users;
 import com.mita.fmipaschedule.helper.DialogHelper;
 import com.mita.fmipaschedule.model.ScheduleModel;
+import com.mita.fmipaschedule.ui.dialog.DialogSemesterFragment;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,7 +31,10 @@ import java.util.List;
 public class ScheduleActivity extends AppCompatActivity {
     private SwipeRefreshLayout refreshLayout;
     private ScheduleAdapter scheduleAdapter;
+    private RelativeLayout layoutSemester;
+    private TextView textSemester;
     private int day = 0;
+    private SessionManager sessionManager;
     private final List<ScheduleModel> schedules = new ArrayList<>();
 
     @Override
@@ -40,6 +46,7 @@ public class ScheduleActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +55,8 @@ public class ScheduleActivity extends AppCompatActivity {
         if (actionBar!=null) actionBar.setDisplayHomeAsUpEnabled(true);
 
         refreshLayout = findViewById(R.id.refresh_layout);
+        layoutSemester = findViewById(R.id.layout_semester);
+        textSemester = findViewById(R.id.text_semester);
         RecyclerView recyclerSchedule = findViewById(R.id.recycler_view);
 
         Intent intent = getIntent();
@@ -56,6 +65,7 @@ public class ScheduleActivity extends AppCompatActivity {
 
         if (actionBar!=null && title!=null) actionBar.setTitle(title);
 
+        sessionManager = new SessionManager(getApplicationContext());
         scheduleAdapter = new ScheduleAdapter(getApplicationContext(), schedules);
         scheduleAdapter.setListInterface(new ListInterface() {
             @Override
@@ -76,6 +86,19 @@ public class ScheduleActivity extends AppCompatActivity {
         recyclerSchedule.setAdapter(scheduleAdapter);
 
         refreshLayout.setOnRefreshListener(this::getSchedules);
+        layoutSemester.setOnClickListener(v->{
+            DialogSemesterFragment fragment = new DialogSemesterFragment();
+            fragment.setDialog(new DialogSemesterFragment.Dialog() {
+                @Override
+                public void onSuccess(String semester) {
+                    sessionManager.setSemester(semester);
+                    textSemester.setText("Semester "+sessionManager.getSemester());
+                    getSchedules();
+                }
+            });
+            fragment.show(getSupportFragmentManager(), null);
+        });
+        textSemester.setText("Semester "+sessionManager.getSemester());
     }
 
     @Override
@@ -88,7 +111,7 @@ public class ScheduleActivity extends AppCompatActivity {
     private void getSchedules(){
         refreshLayout.setRefreshing(true);
         Scheduler scheduler = new Scheduler(getApplicationContext());
-        scheduler.gets(day, new Scheduler.SchedulerInterface() {
+        scheduler.gets(day, sessionManager.getSemester(), new Scheduler.SchedulerInterface() {
             @Override
             public void onSuccess(List<ScheduleModel> list) {
                 schedules.clear();
