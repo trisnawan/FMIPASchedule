@@ -94,7 +94,11 @@ public class DashboardFragment extends Fragment {
             public void response(InterfaceModel<List<DaysModel>> response) {
                 list.clear();
                 if (response.isSuccess()){
-                    list.addAll(response.getData());
+                    for (DaysModel model : response.getData()){
+                        if (model.getId()!=0 && model.getId()!=6){
+                            list.add(model);
+                        }
+                    }
                     adapter.notifyDataSetChanged();
                 }else{
                     DialogHelper.toastShort(requireContext(), response.getMessage());
