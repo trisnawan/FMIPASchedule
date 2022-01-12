@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mita.fmipaschedule.model.InterfaceModel;
@@ -47,6 +48,20 @@ public class MataKuliah {
             @Override
             public void onFailure(@NonNull Exception e) {
                 listInterface.response(new InterfaceModel<>(false, e.getLocalizedMessage(), null));
+            }
+        });
+    }
+
+    public void get(String id, MataInterface mataInterface){
+        db.collection(table).document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                mataInterface.response(new InterfaceModel<>(true, "Success!", documentSnapshot.toObject(MatkulModel.class)));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                mataInterface.response(new InterfaceModel<>(false, e.getLocalizedMessage(), null));
             }
         });
     }

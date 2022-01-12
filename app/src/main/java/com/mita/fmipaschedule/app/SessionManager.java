@@ -29,6 +29,7 @@ public class SessionManager {
         editor.putString("user_email", user.getEmail());
         editor.putLong("user_birthdate", user.getBirthdate());
         editor.putInt("user_type", user.getType());
+        editor.putString("user_matkul", user.getMatkulId());
         editor.apply();
         setProgram(user.getProgram());
     }
@@ -41,7 +42,14 @@ public class SessionManager {
         userModel.setEmail(sharedpreferences.getString("user_email", null));
         userModel.setBirthdate(sharedpreferences.getLong("user_birthdate", 0));
         userModel.setType(sharedpreferences.getInt("user_type", 0));
+        userModel.setMatkulId(sharedpreferences.getString("user_matkul", null));
         return userModel;
+    }
+
+    public void setMatkulId(String id){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString("user_matkul", id);
+        editor.apply();
     }
 
     public int getUserType(){

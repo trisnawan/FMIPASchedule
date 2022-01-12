@@ -16,14 +16,19 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mita.fmipaschedule.Interface.DatabaseArrayInterface;
 import com.mita.fmipaschedule.Interface.DatabaseInterface;
 import com.mita.fmipaschedule.app.AppHelper;
 import com.mita.fmipaschedule.app.SessionManager;
+import com.mita.fmipaschedule.model.MatkulModel;
 import com.mita.fmipaschedule.model.ProgramModel;
 import com.mita.fmipaschedule.model.UserModel;
 
@@ -43,6 +48,22 @@ public class Users {
 
     public void setDatabaseInterface(DatabaseInterface databaseInterface) {
         this.databaseInterface = databaseInterface;
+    }
+
+    public void getsDosen(String matkulId, DatabaseArrayInterface arrayInterface){
+        CollectionReference reference = db.collection("users");
+        Query query = reference.whereEqualTo("matkulId", matkulId);
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot snapshots) {
+                arrayInterface.onSuccess(true, "Success!", snapshots);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                arrayInterface.onSuccess(false, e.getLocalizedMessage(), null);
+            }
+        });
     }
 
     public void updatePassword(Context context, String oldPassword, String newPassword){
@@ -239,6 +260,24 @@ public class Users {
                 });
     }
 
+    public void setDosenMatkul(Context context, MatkulModel matkulModel, DatabaseInterface databaseInterface){
+        Map<String, Object> us = new HashMap<>();
+        us.put("matkulId", matkulModel.getId());
+        db.collection("users").document(getId()).update(us).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                SessionManager sessionManager = new SessionManager(context);
+                sessionManager.setMatkulId(matkulModel.getId());
+                databaseInterface.onSuccess(true, null, null);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                databaseInterface.onSuccess(false, e.getLocalizedMessage(), null);
+            }
+        });
+    }
+
     public String getId(){
         return user.getUid();
     }
@@ -268,6 +307,11 @@ public class Users {
         return sessionManager.getUserTypeString();
     }
 
+    public String getReg(Context context){
+        SessionManager sessionManager = new SessionManager(context);
+        return sessionManager.getUser().getReg();
+    }
+
     public Date getBirthDate(Context context){
         SessionManager sessionManager = new SessionManager(context);
         return new Date(sessionManager.getUser().getBirthdate());
@@ -285,6 +329,11 @@ public class Users {
         }else{
             return false;
         }
+    }
+
+    public String getMatkulId(Context context){
+        SessionManager sessionManager = new SessionManager(context);
+        return sessionManager.getUser().getMatkulId();
     }
 
     public void logout(Context context){

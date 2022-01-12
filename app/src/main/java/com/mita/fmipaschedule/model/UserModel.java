@@ -3,7 +3,7 @@ package com.mita.fmipaschedule.model;
 public class UserModel {
     private int type;
     private long birthdate;
-    private String id, name, reg, email;
+    private String id, name, reg, email, matkulId;
     private ProgramModel program;
 
     public String getId() {
@@ -60,5 +60,13 @@ public class UserModel {
 
     public void setProgram(ProgramModel program) {
         this.program = program;
+    }
+
+    public String getMatkulId() {
+        return matkulId;
+    }
+
+    public void setMatkulId(String matkulId) {
+        this.matkulId = matkulId;
     }
 }

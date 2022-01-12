@@ -3,9 +3,11 @@ package com.mita.fmipaschedule;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -14,13 +16,18 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.firebase.firestore.QuerySnapshot;
+import com.mita.fmipaschedule.Interface.DatabaseArrayInterface;
+import com.mita.fmipaschedule.adapter.DosenAdapter;
 import com.mita.fmipaschedule.app.NumberHelper;
 import com.mita.fmipaschedule.database.DaysData;
 import com.mita.fmipaschedule.database.Scheduler;
 import com.mita.fmipaschedule.database.Users;
 import com.mita.fmipaschedule.helper.DialogHelper;
 import com.mita.fmipaschedule.model.ScheduleModel;
+import com.mita.fmipaschedule.model.UserModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SchedulePageActivity extends AppCompatActivity {
@@ -31,6 +38,8 @@ public class SchedulePageActivity extends AppCompatActivity {
     private Button btnDelete;
     private RecyclerView recyclerDosen;
     private ScheduleModel scheduleModel;
+    private List<UserModel> userModels = new ArrayList<>();
+    private DosenAdapter dosenAdapter;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -53,6 +62,7 @@ public class SchedulePageActivity extends AppCompatActivity {
         textDay = findViewById(R.id.day);
         textTime = findViewById(R.id.time);
         textRoom = findViewById(R.id.room);
+        recyclerDosen = findViewById(R.id.dosens);
         btnDelete = findViewById(R.id.btn_delete);
 
         Intent intent = getIntent();
@@ -64,9 +74,14 @@ public class SchedulePageActivity extends AppCompatActivity {
             actionBar.setTitle(intent.getStringExtra("title"));
         }
 
+        dosenAdapter = new DosenAdapter(getApplicationContext(), userModels);
         scheduleModel = new ScheduleModel();
         refreshLayout.setOnRefreshListener(this::getSchedule);
         btnDelete.setOnClickListener(v -> deleteSchedule());
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+        recyclerDosen.setLayoutManager(layoutManager);
+        recyclerDosen.setAdapter(dosenAdapter);
 
         getSchedule();
     }
@@ -103,11 +118,28 @@ public class SchedulePageActivity extends AppCompatActivity {
             textMatkul.setText(scheduleModel.getMatkul().getName());
             mainLayout.setVisibility(View.VISIBLE);
             Users users = new Users();
+
             if (users.isDosen(getApplicationContext())){
                 btnDelete.setVisibility(View.VISIBLE);
             }else{
                 btnDelete.setVisibility(View.GONE);
             }
+
+            refreshLayout.setRefreshing(true);
+            userModels.clear();
+            users.getsDosen(scheduleModel.getMatkul().getId(), new DatabaseArrayInterface() {
+                @SuppressLint("NotifyDataSetChanged")
+                @Override
+                public void onSuccess(boolean isSuccess, String message, QuerySnapshot data) {
+                    refreshLayout.setRefreshing(false);
+                    if (isSuccess){
+                        userModels.addAll(data.toObjects(UserModel.class));
+                        dosenAdapter.notifyDataSetChanged();
+                    } else {
+                        DialogHelper.toastShort(getApplicationContext(), message);
+                    }
+                }
+            });
         }else{
             DialogHelper.toastShort(getApplicationContext(), getString(R.string.error_default));
             finish();
