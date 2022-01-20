@@ -12,16 +12,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.mita.fmipaschedule.Interface.ListInterface;
 import com.mita.fmipaschedule.R;
 import com.mita.fmipaschedule.model.DaysModel;
+import com.mita.fmipaschedule.model.DosenModel;
 import com.mita.fmipaschedule.model.UserModel;
 
 import java.util.List;
 
 public class DosenAdapter extends RecyclerView.Adapter<DosenAdapter.MyViewHolder> {
     private final Context context;
-    private final List<UserModel> list;
+    private final List<DosenModel> list;
     private ListInterface listInterface;
 
-    public DosenAdapter(Context context, List<UserModel> list) {
+    public DosenAdapter(Context context, List<DosenModel> list) {
         this.context = context;
         this.list = list;
     }
@@ -40,7 +41,7 @@ public class DosenAdapter extends RecyclerView.Adapter<DosenAdapter.MyViewHolder
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.name.setText(list.get(position).getName());
-        holder.reg.setText(list.get(position).getReg());
+        holder.reg.setText(list.get(position).getNip());
     }
 
     @Override

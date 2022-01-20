@@ -2,6 +2,7 @@ package com.mita.fmipaschedule.ui.schedule;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,13 +19,16 @@ import android.widget.RadioGroup;
 
 import com.mita.fmipaschedule.Interface.ProgramInterface;
 import com.mita.fmipaschedule.R;
+import com.mita.fmipaschedule.SchedulePageActivity;
 import com.mita.fmipaschedule.app.AppHelper;
 import com.mita.fmipaschedule.database.DaysData;
 import com.mita.fmipaschedule.database.Fakultas;
 import com.mita.fmipaschedule.database.MataKuliah;
 import com.mita.fmipaschedule.database.Scheduler;
+import com.mita.fmipaschedule.database.Users;
 import com.mita.fmipaschedule.helper.DialogHelper;
 import com.mita.fmipaschedule.model.DaysModel;
+import com.mita.fmipaschedule.model.DosenModel;
 import com.mita.fmipaschedule.model.FakultasModel;
 import com.mita.fmipaschedule.model.InterfaceModel;
 import com.mita.fmipaschedule.model.MatkulModel;
@@ -158,9 +162,33 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
             scheduler.set(scheduleModel).create(new Scheduler.SchedulerInterface() {
                 @Override
                 public void onSuccess(List<ScheduleModel> list) {
-                    DialogHelper.toastShort(requireContext(), "Berhasil!");
-                    Navigation.findNavController(mainView).popBackStack();
-                    progressDialog.dismiss();
+                    DosenModel dosenModel = new DosenModel();
+                    dosenModel.setName(new Users().getName());
+                    dosenModel.setNip(new Users().getReg(requireContext()));
+                    dosenModel.setScheduleId(list.get(0).getId());
+                    scheduler.addDosen(dosenModel, new Scheduler.DosenInterface() {
+                        @Override
+                        public void onSuccess(List<DosenModel> listDosen) {
+                            DialogHelper.toastShort(requireContext(), "Berhasil!");
+                            Navigation.findNavController(mainView).popBackStack();
+                            progressDialog.dismiss();
+                            Intent i = new Intent(requireContext(), SchedulePageActivity.class);
+                            i.putExtra("id", dosenModel.getScheduleId());
+                            i.putExtra("title", list.get(0).getMatkul().getName());
+                            startActivity(i);
+                        }
+
+                        @Override
+                        public void onFailure(String message) {
+                            DialogHelper.alert(requireActivity(), getString(R.string.app_name), message);
+                            Navigation.findNavController(mainView).popBackStack();
+                            progressDialog.dismiss();
+                            Intent i = new Intent(requireContext(), SchedulePageActivity.class);
+                            i.putExtra("id", dosenModel.getScheduleId());
+                            i.putExtra("title", list.get(0).getMatkul().getName());
+                            startActivity(i);
+                        }
+                    });
                 }
 
                 @Override

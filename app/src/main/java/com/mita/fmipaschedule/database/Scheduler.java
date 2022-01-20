@@ -13,6 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mita.fmipaschedule.R;
+import com.mita.fmipaschedule.model.DosenModel;
 import com.mita.fmipaschedule.model.FakultasModel;
 import com.mita.fmipaschedule.model.FakultasOpensModel;
 import com.mita.fmipaschedule.model.KelasModel;
@@ -108,6 +109,45 @@ public class Scheduler {
         });
     }
 
+    public void addDosen(DosenModel dosenModel, DosenInterface dosenInterface){
+        db.collection(tableMain+"_dosen").add(dosenModel).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                dosenModel.setId(dosenModel.getId());
+                List<DosenModel> list = new ArrayList<>();
+                list.add(dosenModel);
+                dosenInterface.onSuccess(list);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                dosenInterface.onFailure(e.getLocalizedMessage());
+            }
+        });
+    }
+
+    public void getDosen(String scheduleId, DosenInterface dosenInterface){
+        CollectionReference reference = db.collection(tableMain+"_dosen");
+        Query query = reference.whereEqualTo("scheduleId", scheduleId);
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot snapshots) {
+                dosenInterface.onSuccess(snapshots.toObjects(DosenModel.class));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                dosenInterface.onFailure(e.getLocalizedMessage());
+            }
+        });
+
+    }
+
+    public interface DosenInterface {
+        void onSuccess(List<DosenModel> list);
+        void onFailure(String message);
+    }
+
     public interface SchedulerInterface {
         void onSuccess(List<ScheduleModel> list);
         void onFailure(int code, String message);
@@ -137,7 +177,10 @@ public class Scheduler {
                                 db.collection(tableMain).add(newModel).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                     @Override
                                     public void onSuccess(DocumentReference documentReference) {
-                                        schedulerInterface.onSuccess(null);
+                                        newModel.setId(documentReference.getId());
+                                        List<ScheduleModel> newList = new ArrayList<>();
+                                        newList.add(newModel);
+                                        schedulerInterface.onSuccess(newList);
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override

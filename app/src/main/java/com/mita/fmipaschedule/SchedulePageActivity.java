@@ -18,14 +18,17 @@ import android.widget.TextView;
 
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mita.fmipaschedule.Interface.DatabaseArrayInterface;
+import com.mita.fmipaschedule.Interface.ListInterface;
 import com.mita.fmipaschedule.adapter.DosenAdapter;
 import com.mita.fmipaschedule.app.NumberHelper;
 import com.mita.fmipaschedule.database.DaysData;
 import com.mita.fmipaschedule.database.Scheduler;
 import com.mita.fmipaschedule.database.Users;
 import com.mita.fmipaschedule.helper.DialogHelper;
+import com.mita.fmipaschedule.model.DosenModel;
 import com.mita.fmipaschedule.model.ScheduleModel;
 import com.mita.fmipaschedule.model.UserModel;
+import com.mita.fmipaschedule.ui.dialog.DialogDosenEditorFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +38,10 @@ public class SchedulePageActivity extends AppCompatActivity {
     private SwipeRefreshLayout refreshLayout;
     private LinearLayout mainLayout;
     private TextView textCode, textMatkul, textWp, textDay, textTime, textRoom;
-    private Button btnDelete;
+    private Button btnDelete, btnDosen;
     private RecyclerView recyclerDosen;
     private ScheduleModel scheduleModel;
-    private List<UserModel> userModels = new ArrayList<>();
+    private List<DosenModel> userModels = new ArrayList<>();
     private DosenAdapter dosenAdapter;
 
     @Override
@@ -64,6 +67,7 @@ public class SchedulePageActivity extends AppCompatActivity {
         textRoom = findViewById(R.id.room);
         recyclerDosen = findViewById(R.id.dosens);
         btnDelete = findViewById(R.id.btn_delete);
+        btnDosen = findViewById(R.id.btn_dosen);
 
         Intent intent = getIntent();
         id = intent.getStringExtra("id");
@@ -75,9 +79,31 @@ public class SchedulePageActivity extends AppCompatActivity {
         }
 
         dosenAdapter = new DosenAdapter(getApplicationContext(), userModels);
+        dosenAdapter.setListInterface(new ListInterface() {
+            @Override
+            public void onClick(View view, int position) {
+
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        });
         scheduleModel = new ScheduleModel();
         refreshLayout.setOnRefreshListener(this::getSchedule);
         btnDelete.setOnClickListener(v -> deleteSchedule());
+        btnDosen.setOnClickListener(v->{
+            DialogDosenEditorFragment fragment = new DialogDosenEditorFragment();
+            fragment.setDialog(new DialogDosenEditorFragment.Dialog() {
+                @Override
+                public void onFinish(DosenModel dosenModel) {
+                    dosenModel.setScheduleId(id);
+                    saveDosen(dosenModel);
+                }
+            });
+            fragment.show(getSupportFragmentManager(), null);
+        });
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
         recyclerDosen.setLayoutManager(layoutManager);
@@ -86,8 +112,27 @@ public class SchedulePageActivity extends AppCompatActivity {
         getSchedule();
     }
 
+    private void saveDosen(DosenModel dosenModel){
+        refreshLayout.setRefreshing(true);
+        Scheduler scheduler = new Scheduler(getApplicationContext());
+        scheduler.addDosen(dosenModel, new Scheduler.DosenInterface() {
+            @Override
+            public void onSuccess(List<DosenModel> list) {
+                refreshLayout.setRefreshing(false);
+                showSchedule();
+            }
+
+            @Override
+            public void onFailure(String message) {
+                refreshLayout.setRefreshing(false);
+                DialogHelper.toastShort(getApplicationContext(), message);
+            }
+        });
+    }
+
     private void getSchedule(){
         btnDelete.setVisibility(View.GONE);
+        btnDosen.setVisibility(View.GONE);
         mainLayout.setVisibility(View.INVISIBLE);
         refreshLayout.setRefreshing(true);
         Scheduler scheduler = new Scheduler(getApplicationContext());
@@ -121,23 +166,27 @@ public class SchedulePageActivity extends AppCompatActivity {
 
             if (users.isDosen(getApplicationContext())){
                 btnDelete.setVisibility(View.VISIBLE);
+                btnDosen.setVisibility(View.VISIBLE);
             }else{
                 btnDelete.setVisibility(View.GONE);
+                btnDosen.setVisibility(View.GONE);
             }
 
             refreshLayout.setRefreshing(true);
             userModels.clear();
-            users.getsDosen(scheduleModel.getMatkul().getId(), new DatabaseArrayInterface() {
+            Scheduler scheduler = new Scheduler(getApplicationContext());
+            scheduler.getDosen(scheduleModel.getId(), new Scheduler.DosenInterface() {
                 @SuppressLint("NotifyDataSetChanged")
                 @Override
-                public void onSuccess(boolean isSuccess, String message, QuerySnapshot data) {
+                public void onSuccess(List<DosenModel> list) {
                     refreshLayout.setRefreshing(false);
-                    if (isSuccess){
-                        userModels.addAll(data.toObjects(UserModel.class));
-                        dosenAdapter.notifyDataSetChanged();
-                    } else {
-                        DialogHelper.toastShort(getApplicationContext(), message);
-                    }
+                    userModels.addAll(list);
+                    dosenAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    DialogHelper.toastShort(getApplicationContext(), message);
                 }
             });
         }else{
