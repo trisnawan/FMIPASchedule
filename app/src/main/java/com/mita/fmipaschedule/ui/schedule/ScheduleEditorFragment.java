@@ -2,13 +2,17 @@ package com.mita.fmipaschedule.ui.schedule;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,9 +21,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 
+import com.google.firebase.firestore.auth.User;
+import com.mita.fmipaschedule.Interface.ListInterface;
 import com.mita.fmipaschedule.Interface.ProgramInterface;
 import com.mita.fmipaschedule.R;
 import com.mita.fmipaschedule.SchedulePageActivity;
+import com.mita.fmipaschedule.adapter.DosenAdapter;
 import com.mita.fmipaschedule.app.AppHelper;
 import com.mita.fmipaschedule.database.DaysData;
 import com.mita.fmipaschedule.database.Fakultas;
@@ -35,10 +42,12 @@ import com.mita.fmipaschedule.model.MatkulModel;
 import com.mita.fmipaschedule.model.ProgramModel;
 import com.mita.fmipaschedule.model.ScheduleModel;
 import com.mita.fmipaschedule.ui.dialog.DialogDaysFragment;
+import com.mita.fmipaschedule.ui.dialog.DialogDosenEditorFragment;
 import com.mita.fmipaschedule.ui.dialog.DialogMataChooseFragment;
 import com.mita.fmipaschedule.ui.dialog.DialogMataEditorFragment;
 import com.mita.fmipaschedule.ui.dialog.DialogProgramFragment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataInterface {
@@ -46,12 +55,15 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
     private ProgressDialog progressDialog;
     private EditText editProgram, editMatkul, editSemester, editSks;
     private RadioGroup editWp;
-    private Button btnSave;
+    private Button btnSave, btnDosen;
     private FakultasModel fakultasModel;
     private ProgramModel programModel;
     private MatkulModel matkulModel;
     private DaysModel daysModel;
     private String stringWp = "W";
+    private RecyclerView recyclerView;
+    private List<DosenModel> listDosen = new ArrayList<>();
+    private DosenAdapter dosenAdapter;
 
     public ScheduleEditorFragment() {
         // Required empty public constructor
@@ -72,7 +84,29 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
         editSks = view.findViewById(R.id.sks);
         editWp = view.findViewById(R.id.wp);
         btnSave = view.findViewById(R.id.btn_save);
+        recyclerView = view.findViewById(R.id.recycler_view);
+        btnDosen = view.findViewById(R.id.btn_dosen);
 
+        Users users = new Users();
+
+        // menambahkan dirinya sebagai dosen
+        DosenModel dosenMy = new DosenModel();
+        dosenMy.setNip(users.getReg(requireContext()));
+        dosenMy.setName(users.getName());
+        listDosen.add(dosenMy);
+
+        dosenAdapter = new DosenAdapter(requireActivity(), listDosen);
+        dosenAdapter.setListInterface(new ListInterface() {
+            @Override
+            public void onClick(View view, int position) {
+                setDialog(position);
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+                setDialog(position);
+            }
+        });
         fakultasModel = new FakultasModel();
         programModel = new ProgramModel();
         matkulModel = new MatkulModel();
@@ -81,6 +115,10 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
         progressDialog.setTitle(getString(R.string.loading));
         progressDialog.setMessage(getString(R.string.please_wait));
         progressDialog.setCancelable(false);
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(requireActivity(), RecyclerView.VERTICAL, false);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(dosenAdapter);
 
         editProgram.setFocusable(false);
         editProgram.setOnClickListener(v -> getProgram());
@@ -101,8 +139,41 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
                 saveSchedule();
             }
         });
+        btnDosen.setOnClickListener(v -> {
+            DialogDosenEditorFragment editorFragment = new DialogDosenEditorFragment();
+            editorFragment.setDialog(new DialogDosenEditorFragment.Dialog() {
+                @SuppressLint("NotifyDataSetChanged")
+                @Override
+                public void onFinish(DosenModel dosenModel) {
+                    listDosen.add(dosenModel);
+                    dosenAdapter.notifyDataSetChanged();
+                }
+            });
+            editorFragment.show(getParentFragmentManager(), null);
+        });
 
         getFakultas();
+    }
+
+    private void setDialog(int position){
+        final CharSequence[] dialogItem = {"Hapus Dosen", "Kembali"};
+        AlertDialog.Builder dialog = new AlertDialog.Builder(requireContext());
+        dialog.setItems(dialogItem, new DialogInterface.OnClickListener() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch (i){
+                    case 0:
+                        listDosen.remove(position);
+                        dosenAdapter.notifyDataSetChanged();
+                        break;
+                    default:
+                        dialogInterface.dismiss();
+                        break;
+                }
+            }
+        });
+        dialog.show();
     }
 
     private void getFakultas(){
@@ -166,9 +237,9 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
                     dosenModel.setName(new Users().getName());
                     dosenModel.setNip(new Users().getReg(requireContext()));
                     dosenModel.setScheduleId(list.get(0).getId());
-                    scheduler.addDosen(dosenModel, new Scheduler.DosenInterface() {
+                    scheduler.addDosen(listDosen, list.get(0).getId(), new Scheduler.DosenInterface() {
                         @Override
-                        public void onSuccess(List<DosenModel> listDosen) {
+                        public void onSuccess(List<DosenModel> dosens) {
                             DialogHelper.toastShort(requireContext(), "Berhasil!");
                             Navigation.findNavController(mainView).popBackStack();
                             progressDialog.dismiss();
@@ -180,13 +251,7 @@ public class ScheduleEditorFragment extends Fragment implements MataKuliah.MataI
 
                         @Override
                         public void onFailure(String message) {
-                            DialogHelper.alert(requireActivity(), getString(R.string.app_name), message);
-                            Navigation.findNavController(mainView).popBackStack();
-                            progressDialog.dismiss();
-                            Intent i = new Intent(requireContext(), SchedulePageActivity.class);
-                            i.putExtra("id", dosenModel.getScheduleId());
-                            i.putExtra("title", list.get(0).getMatkul().getName());
-                            startActivity(i);
+
                         }
                     });
                 }

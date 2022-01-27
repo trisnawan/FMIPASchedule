@@ -4,14 +4,17 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.mita.fmipaschedule.R;
 import com.mita.fmipaschedule.model.DosenModel;
 import com.mita.fmipaschedule.model.FakultasModel;
@@ -20,6 +23,7 @@ import com.mita.fmipaschedule.model.KelasModel;
 import com.mita.fmipaschedule.model.ScheduleModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Scheduler {
@@ -105,6 +109,23 @@ public class Scheduler {
             @Override
             public void onFailure(@NonNull Exception e) {
                 schedulerInterface.onFailure(0, e.getLocalizedMessage());
+            }
+        });
+    }
+
+    public void addDosen(List<DosenModel> list, String schedule, DosenInterface dosenInterface){
+        WriteBatch batch = db.batch();
+        int i = 0;
+        for (DosenModel dosenModel : list){
+            dosenModel.setScheduleId(schedule);
+            dosenModel.setId(schedule + new Date().getTime() + i);
+            DocumentReference reference = db.collection(tableMain+"_dosen").document(dosenModel.getId());
+            batch.set(reference, dosenModel);
+        }
+        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                dosenInterface.onSuccess(null);
             }
         });
     }

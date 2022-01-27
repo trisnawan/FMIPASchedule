@@ -42,4 +42,6 @@
     <string name="waktu">Waktu</string>
     <string name="room">Ruang</string>
     <string name="delete_schedule">Hapus Jadwal</string>
+    <string name="dosen">Dosen</string>
+    <string name="tambah_dosen">Tambah dosen</string>
 </resources>
